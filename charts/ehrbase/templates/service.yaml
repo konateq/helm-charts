@@ -7,9 +7,20 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
+    {{- if not .Values.tls.enabled }}
+    - name: http
+      port: {{ .Values.service.ports.http }}
       targetPort: http
       protocol: TCP
-      name: http
+    {{- else }}
+    - name: https
+      port: {{ .Values.service.ports.https }}
+      targetPort: https
+      protocol: TCP
+    {{- end }}
+    - name: management
+      port: {{ .Values.service.ports.management }}
+      targetPort: management
+      protocol: TCP
   selector:
     {{- include "ehrbase.selectorLabels" . | nindent 4 }}

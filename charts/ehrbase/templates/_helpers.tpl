@@ -60,3 +60,90 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+
+{{- define "ehrbase.postgresql" -}}
+{{- if .Values.postgresql.fullnameOverride }}
+{{- .Values.postgresql.fullnameOverride }}
+{{- else }}
+{{- include "ehrbase.fullname" . }}-postgresql
+{{- end }}
+{{- end }}
+
+{{- define "ehrbase.databaseHost" -}}
+{{- if .Values.postgresql.enabled }}
+{{- if eq .Values.postgresql.architecture "replication" }}
+{{- include "ehrbase.postgresql" . }}-primary
+{{- else }}
+{{- include "ehrbase.postgresql" . }}
+{{- end }}
+{{- else }}
+{{- .Values.externalDatabase.host }}
+{{- end }}
+{{- end }}
+
+{{- define "ehrbase.databasePort" -}}
+{{- if .Values.postgresql.enabled }}
+{{- .Values.postgresql.primary.service.ports.postgresql }}
+{{- else }}
+{{- .Values.externalDatabase.port }}
+{{- end }}
+{{- end }}
+
+{{- define "ehrbase.databaseName" -}}
+{{- if .Values.postgresql.enabled }}
+{{- .Values.postgresql.auth.database }}
+{{- else }}
+{{- .Values.externalDatabase.database }}
+{{- end }}
+{{- end }}
+
+{{- define "ehrbase.databaseUrl" -}}
+{{- printf "jdbc:postgresql://%s:%s/%s" (include "ehrbase.databaseHost" .) (include "ehrbase.databasePort" .) (include "ehrbase.databaseName" .) }}
+{{- end }}
+
+{{- define "ehrbase.databaseAdminUser" -}}
+{{- if .Values.postgresql.enabled }}
+{{- "postgres" }}
+{{- else }}
+{{- .Values.externalDatabase.user }}
+{{- end }}
+{{- end }}
+
+{{- define "ehrbase.databaseUser" -}}
+{{- if .Values.postgresql.enabled }}
+{{- .Values.postgresql.auth.username }}
+{{- else }}
+{{- .Values.externalDatabase.user }}
+{{- end }}
+{{- end }}
+
+{{- define "ehrbase.databaseSecretName" -}}
+{{- if .Values.postgresql.enabled }}
+{{- coalesce .Values.postgresql.auth.existingSecret (include "ehrbase.postgresql" .) }}
+{{- end }}
+{{- end }}
+
+{{- define "ehrbase.databaseAdminPasswordKey" -}}
+{{- if .Values.postgresql.enabled }}
+{{- default "postgres-password" .Values.postgresql.auth.secretKeys.adminPasswordKey }}
+{{- else -}}
+{{- default "password" .Values.externalDatabase.existingSecretPasswordKey }}
+{{- end }}
+{{- end }}
+
+{{- define "ehrbase.databaseUserPasswordKey" -}}
+{{- if .Values.postgresql.enabled }}
+{{- default "password" .Values.postgresql.auth.secretKeys.userPasswordKey }}
+{{- else -}}
+{{- default "password" .Values.externalDatabase.existingSecretPasswordKey }}
+{{- end }}
+{{- end }}
+
+{{- define "ehrbase.serverPort" -}}
+{{- ternary .Values.containerPorts.https .Values.containerPorts.http .Values.tls.enabled }}
+{{- end }}
+
+{{- define "ehrbase.servicePortName" -}}
+{{- ternary "https" "http" .Values.tls.enabled }}
+{{- end }}
