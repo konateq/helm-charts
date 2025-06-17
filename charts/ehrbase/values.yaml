@@ -166,7 +166,7 @@ postgresql:
       scripts:
         00_init_db.sql: |
           \set db_name `echo "$POSTGRES_DATABASE"`
-          
+
           CREATE SCHEMA IF NOT EXISTS ehr;
           CREATE SCHEMA IF NOT EXISTS ext;
 
