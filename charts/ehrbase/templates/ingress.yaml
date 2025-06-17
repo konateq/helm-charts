@@ -37,7 +37,7 @@ spec:
               service:
                 name: {{ include "ehrbase.fullname" $ }}
                 port:
-                  name: {{ include "ehrbase.servicePortName" $ }}
+                  name: {{ include "ehrbase.portName" $ }}
           {{- end }}
     {{- end }}
 {{- end }}

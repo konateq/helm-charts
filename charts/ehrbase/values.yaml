@@ -1,9 +1,27 @@
+auth:
+  type: basic
+
+  basic:
+    adminUsername: ehrbase-admin
+    adminPassword: ""
+    username: ehrbase-user
+    password: ""
+    existingSecret: ""
+    existingSecretAdminUsernameKey: admin-username
+    existingSecretAdminPasswordKey: admin-password
+    existingSecretUsernameKey: username
+    existingSecretPasswordKey: password
+
+  oauth2:
+    jwkSetUri: ""
+
 contextPath: /
 
 configuration: ""
 
 tls:
   enabled: false
+  existingSecret: ""
 
 containerPorts:
   http: 8080
@@ -101,14 +119,8 @@ resources: { }
 #   memory: 128Mi
 
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-livenessProbe:
-  httpGet:
-    path: /management/health/liveness
-    port: management
-readinessProbe:
-  httpGet:
-    path: /management/health/readiness
-    port: management
+customLivenessProbe: { }
+customReadinessProbe: { }
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
@@ -165,7 +177,7 @@ postgresql:
 
           ALTER FUNCTION jsonb_path_query(jsonb, jsonpath, jsonb, boolean) ROWS 1;
 
-externalDatabase:
+externalPostgresql:
   host: ""
   port: 5432
   username: ehrbase
@@ -175,4 +187,19 @@ externalDatabase:
   existingSecretPasswordKey: ""
 
 redis:
-  enabled: false
+  enabled: true
+
+  architecture: standalone
+
+  auth:
+    enabled: true
+    password: ""
+    existingSecret: ""
+    existingSecretPasswordKey: ""
+
+externalRedis:
+  host: ""
+  port: 6379
+  password: ""
+  existingSecret: ""
+  existingSecretPasswordKey: "redis-password"

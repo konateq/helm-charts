@@ -39,9 +39,9 @@ spec:
           command: [ 'sh', '-c', 'until nc -z $POSTGRES_HOST $POSTGRES_PORT; do echo waiting for database; sleep 2; done;' ]
           env:
             - name: POSTGRES_HOST
-              value: {{ include "ehrbase.databaseHost" .  | quote }}
+              value: {{ include "ehrbase.postgres.host" .  | quote }}
             - name: POSTGRES_PORT
-              value: {{ include "ehrbase.databasePort" .  | quote }}
+              value: {{ include "ehrbase.postgres.port" .  | quote }}
         {{- end }}
       containers:
         - name: ehrbase
@@ -55,13 +55,40 @@ spec:
             - name: DB_PASS
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "ehrbase.databaseSecretName" . }}
-                  key: {{ include "ehrbase.databaseUserPasswordKey" . }}
+                  name: {{ include "ehrbase.postgres.secretName" . }}
+                  key: {{ include "ehrbase.postgres.secretUserPasswordKey" . }}
             - name: DB_PASS_ADMIN
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "ehrbase.databaseSecretName" . }}
-                  key: {{ include "ehrbase.databaseAdminPasswordKey" . }}
+                  name: {{ include "ehrbase.postgres.secretName" . }}
+                  key: {{ include "ehrbase.postgres.secretAdminPasswordKey" . }}
+            {{- if eq .Values.auth.type "basic" }}
+            - name: SECURITY_AUTHADMINUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ehrbase.auth.secretName" . }}
+                  key: {{ include "ehrbase.auth.secretAdminUsernameKey" . }}
+            - name: SECURITY_AUTHADMINPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ehrbase.auth.secretName" . }}
+                  key: {{ include "ehrbase.auth.secretAdminPasswordKey" . }}
+            - name: SECURITY_AUTHUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ehrbase.auth.secretName" . }}
+                  key: {{ include "ehrbase.auth.secretUsernameKey" . }}
+            - name: SECURITY_AUTHPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ehrbase.auth.secretName" . }}
+                  key: {{ include "ehrbase.auth.secretPasswordKey" . }}
+            {{- end }}
+            - name: SPRING_DATA_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ehrbase.redis.secretName" . }}
+                  key: {{ include "ehrbase.redis.secretPasswordKey" . }}
           envFrom:
             - configMapRef:
                 name: {{ include "ehrbase.fullname" . }}-env-vars
@@ -78,13 +105,25 @@ spec:
             - name: management
               containerPort: {{ .Values.containerPorts.management }}
               protocol: TCP
-          {{- with .Values.livenessProbe }}
+          {{- if .Values.customLivenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
+          {{- else }}
+          livenessProbe:
+            httpGet:
+              path: /management/health/liveness
+              port: management
+              scheme: {{ ternary "HTTPS" "HTTP" .Values.tls.enabled }}
           {{- end }}
-          {{- with .Values.readinessProbe }}
+          {{- if .Values.customReadinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
+          {{- else }}
+          readinessProbe:
+            httpGet:
+              path: /management/health/readiness
+              port: management
+              scheme: {{ ternary "HTTPS" "HTTP" .Values.tls.enabled }}
           {{- end }}
           {{- with .Values.resources }}
           resources:
@@ -93,9 +132,15 @@ spec:
           volumeMounts:
             - name: tmp-dir
               mountPath: /tmp
+            {{- if .Values.configuration }}
+            - name: config
+              mountPath: /app/config/application.yml
+              subPath: application.yml
+              readOnly: true
+            {{- end }}
             {{- if .Values.tls.enabled }}
             - name: tls-certs
-              mountPath: /etc/tls
+              mountPath: /app/ssl/certs
               readOnly: true
             {{- end }}
             {{- with .Values.extraVolumeMounts }}
@@ -104,10 +149,15 @@ spec:
       volumes:
         - name: tmp-dir
           emptyDir: { }
+        {{- if .Values.configuration }}
+        - name: config
+          configMap:
+            name: {{ include "ehrbase.fullname" . }}-configuration
+        {{- end }}
         {{- if .Values.tls.enabled }}
         - name: tls-certs
           secret:
-            secretName: {{ .Values.tls.secretName }}
+            secretName: {{ include "ehrbase.tls.secretName" . }}
         {{- end }}
         {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}

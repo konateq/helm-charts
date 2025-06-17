@@ -61,89 +61,189 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
-
-{{- define "ehrbase.postgresql" -}}
-{{- if .Values.postgresql.fullnameOverride }}
-{{- .Values.postgresql.fullnameOverride }}
-{{- else }}
-{{- include "ehrbase.fullname" . }}-postgresql
-{{- end }}
+{{/*
+Return the basic authentication secret name
+*/}}
+{{- define "ehrbase.auth.secretName" -}}
+{{- default (printf "%s-auth-users" (include "ehrbase.fullname" .)) .Values.auth.basic.existingSecret }}
 {{- end }}
 
-{{- define "ehrbase.databaseHost" -}}
-{{- if .Values.postgresql.enabled }}
-{{- if eq .Values.postgresql.architecture "replication" }}
-{{- include "ehrbase.postgresql" . }}-primary
-{{- else }}
-{{- include "ehrbase.postgresql" . }}
-{{- end }}
-{{- else }}
-{{- .Values.externalDatabase.host }}
-{{- end }}
+{{/*
+Return the admin username key to be retrieved from the basic authentication secret
+*/}}
+{{- define "ehrbase.auth.secretAdminUsernameKey" -}}
+{{- default "admin-username" .Values.auth.basic.existingSecretAdminUsernameKey }}
 {{- end }}
 
-{{- define "ehrbase.databasePort" -}}
-{{- if .Values.postgresql.enabled }}
-{{- .Values.postgresql.primary.service.ports.postgresql }}
-{{- else }}
-{{- .Values.externalDatabase.port }}
-{{- end }}
-{{- end }}
-
-{{- define "ehrbase.databaseName" -}}
-{{- if .Values.postgresql.enabled }}
-{{- .Values.postgresql.auth.database }}
-{{- else }}
-{{- .Values.externalDatabase.database }}
-{{- end }}
+{{/*
+Return the admin password key to be retrieved from the basic authentication secret
+*/}}
+{{- define "ehrbase.auth.secretAdminPasswordKey" -}}
+{{- default "admin-password" .Values.auth.basic.existingSecretAdminPasswordKey }}
 {{- end }}
 
-{{- define "ehrbase.databaseUrl" -}}
-{{- printf "jdbc:postgresql://%s:%s/%s" (include "ehrbase.databaseHost" .) (include "ehrbase.databasePort" .) (include "ehrbase.databaseName" .) }}
+{{/*
+Return the username key to be retrieved from the basic authentication secret
+*/}}
+{{- define "ehrbase.auth.secretUsernameKey" -}}
+{{- default "username" .Values.auth.basic.existingSecretUsernameKey }}
 {{- end }}
 
-{{- define "ehrbase.databaseAdminUser" -}}
-{{- if .Values.postgresql.enabled }}
-{{- "postgres" }}
-{{- else }}
-{{- .Values.externalDatabase.user }}
-{{- end }}
-{{- end }}
-
-{{- define "ehrbase.databaseUser" -}}
-{{- if .Values.postgresql.enabled }}
-{{- .Values.postgresql.auth.username }}
-{{- else }}
-{{- .Values.externalDatabase.user }}
-{{- end }}
+{{/*
+Return the password key to be retrieved from the basic authentication secret
+*/}}
+{{- define "ehrbase.auth.secretPasswordKey" -}}
+{{- default "password" .Values.auth.basic.existingSecretPasswordKey }}
 {{- end }}
 
-{{- define "ehrbase.databaseSecretName" -}}
-{{- if .Values.postgresql.enabled }}
-{{- coalesce .Values.postgresql.auth.existingSecret (include "ehrbase.postgresql" .) }}
-{{- end }}
-{{- end }}
-
-{{- define "ehrbase.databaseAdminPasswordKey" -}}
-{{- if .Values.postgresql.enabled }}
-{{- default "postgres-password" .Values.postgresql.auth.secretKeys.adminPasswordKey }}
-{{- else -}}
-{{- default "password" .Values.externalDatabase.existingSecretPasswordKey }}
-{{- end }}
-{{- end }}
-
-{{- define "ehrbase.databaseUserPasswordKey" -}}
-{{- if .Values.postgresql.enabled }}
-{{- default "password" .Values.postgresql.auth.secretKeys.userPasswordKey }}
-{{- else -}}
-{{- default "password" .Values.externalDatabase.existingSecretPasswordKey }}
-{{- end }}
-{{- end }}
-
-{{- define "ehrbase.serverPort" -}}
+{{/*
+Return the EHRbase port based on TLS configuration
+*/}}
+{{- define "ehrbase.port" -}}
 {{- ternary .Values.containerPorts.https .Values.containerPorts.http .Values.tls.enabled }}
 {{- end }}
 
-{{- define "ehrbase.servicePortName" -}}
+{{/*
+Return the EHRbase port name based on TLS configuration
+*/}}
+{{- define "ehrbase.portName" -}}
 {{- ternary "https" "http" .Values.tls.enabled }}
+{{- end }}
+
+{{/*
+Return the PostgreSQL fullname
+*/}}
+{{- define "ehrbase.postgres.fullname" -}}
+{{- default (printf "%s-postgresql" (include "ehrbase.fullname" .)) .Values.postgresql.fullnameOverride }}
+{{- end }}
+
+{{/*
+Return the PostgreSQL host
+*/}}
+{{- define "ehrbase.postgres.host" -}}
+{{- if .Values.postgresql.enabled }}
+{{- ternary (printf "%-primary" (include "ehrbase.postgres.fullname" .)) (include "ehrbase.postgres.fullname" .) (eq .Values.postgresql.architecture "replication") }}
+{{- else }}
+{{- .Values.externalPostgresql.host }}
+{{- end }}
+{{- end }}
+
+{{/*
+Return the PostgreSQL port
+*/}}
+{{- define "ehrbase.postgres.port" -}}
+{{- ternary .Values.postgresql.primary.service.ports.postgresql .Values.externalPostgresql.port .Values.postgresql.enabled }}
+{{- end }}
+
+{{/*
+Return the PostgreSQL database name
+*/}}
+{{- define "ehrbase.postgres.database" -}}
+{{- ternary .Values.postgresql.auth.database .Values.externalPostgresql.database .Values.postgresql.enabled }}
+{{- end }}
+
+{{/*
+Return the PostgreSQL JDBC URL
+*/}}
+{{- define "ehrbase.postgres.url" -}}
+{{- printf "jdbc:postgresql://%s:%s/%s" (include "ehrbase.postgres.host" .) (include "ehrbase.postgres.port" .) (include "ehrbase.postgres.database" .) }}
+{{- end }}
+
+{{/*
+Return the PostgreSQL admin user
+*/}}
+{{- define "ehrbase.postgres.adminUser" -}}
+{{- ternary "postgres" .Values.externalPostgresql.user .Values.postgresql.enabled }}
+{{- end }}
+
+{{/*
+Return the PostgreSQL user
+*/}}
+{{- define "ehrbase.postgres.user" -}}
+{{- ternary .Values.postgresql.auth.username .Values.externalPostgresql.username .Values.postgresql.enabled }}
+{{- end }}
+
+{{/*
+Return the passwords secret for PostgreSQL
+*/}}
+{{- define "ehrbase.postgres.secretName" -}}
+{{- if .Values.postgresql.enabled }}
+{{- default (include "ehrbase.postgres.fullname" .) .Values.postgresql.auth.existingSecret }}
+{{- else }}
+{{- default (printf "%s-postgresql" (include "ehrbase.fullname" .)) .Values.externalPostgresql.existingSecret }}
+{{- end }}
+{{- end }}
+
+{{/*
+Return the admin password key to be retrieved from the PostgreSQL secret
+*/}}
+{{- define "ehrbase.postgres.secretAdminPasswordKey" -}}
+{{- if .Values.postgresql.enabled }}
+{{- default "postgres-password" .Values.postgresql.auth.secretKeys.adminPasswordKey }}
+{{- else }}
+{{- default "password" .Values.externalPostgresql.existingSecretPasswordKey }}
+{{- end }}
+{{- end }}
+
+{{/*
+Return the user password key to be retrieved from the PostgreSQL secret
+*/}}
+{{- define "ehrbase.postgres.secretUserPasswordKey" -}}
+{{- $defaultKey := "password" }}
+{{- if .Values.postgresql.enabled }}
+{{- default $defaultKey .Values.postgresql.auth.secretKeys.userPasswordKey }}
+{{- else }}
+{{- default $defaultKey .Values.externalPostgresql.existingSecretPasswordKey }}
+{{- end }}
+{{- end }}
+
+{{/*
+Return the Redis fullname
+*/}}
+{{- define "ehrbase.redis.fullname" -}}
+{{- default (printf "%s-redis" (include "ehrbase.fullname" .)) .Values.redis.fullnameOverride }}
+{{- end }}
+
+{{/*
+Return the Redis host
+*/}}
+{{- define "ehrbase.redis.host" -}}
+{{- ternary (printf "%s-master" (include "ehrbase.redis.fullname" .)) .Values.externalRedis.host .Values.redis.enabled -}}
+{{- end }}
+
+{{/*
+Return the Redis port
+*/}}
+{{- define "ehrbase.redis.port" -}}
+{{- ternary .Values.redis.master.service.ports.redis .Values.externalRedis.port .Values.redis.enabled -}}
+{{- end }}
+
+{{/*
+Return the password secret for Redis
+*/}}
+{{- define "ehrbase.redis.secretName" -}}
+{{- if .Values.redis.enabled }}
+{{- default (include "ehrbase.redis.fullname" .) .Values.redis.auth.existingSecret }}
+{{- else }}
+{{- default (printf "%s-redis" (include "ehrbase.fullname" .)) .Values.externalRedis.existingSecret }}
+{{- end }}
+{{- end }}
+
+{{/*
+Return the password key to be retrieved from the Redis secret
+*/}}
+{{- define "ehrbase.redis.secretPasswordKey" -}}
+{{- $defaultKey := "redis-password" }}
+{{- if .Values.redis.enabled }}
+{{- default $defaultKey .Values.redis.auth.existingSecretPasswordKey }}
+{{- else }}
+{{- default $defaultKey .Values.externalRedis.existingSecretPasswordKey }}
+{{- end }}
+{{- end }}
+
+{{/*
+Return the TLS secret name
+*/}}
+{{- define "ehrbase.tls.secretName" -}}
+{{- default (printf "%s-internal-tls" (include "ehrbase.fullname" .)) .Values.tls.existingSecret }}
 {{- end }}

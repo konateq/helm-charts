@@ -5,10 +5,27 @@ metadata:
   labels:
     {{- include "ehrbase.labels" . | nindent 4 }}
 data:
-  DB_URL: {{ include "ehrbase.databaseUrl" . | quote }}
-  DB_USER: {{ include "ehrbase.databaseUser" . | quote }}
-  DB_USER_ADMIN: {{ include "ehrbase.databaseAdminUser" . | quote }}
+  DB_URL: {{ include "ehrbase.postgres.url" . | quote }}
+  DB_USER: {{ include "ehrbase.postgres.user" . | quote }}
+  DB_USER_ADMIN: {{ include "ehrbase.postgres.adminUser" . | quote }}
   MANAGEMENT_ENDPOINT_HEALTH_ENABLED: "true"
+  MANAGEMENT_ENDPOINTS_WEB_ACCESS: "PUBLIC"
   MANAGEMENT_SERVER_PORT: {{ .Values.containerPorts.management | quote }}
-  SERVER_PORT: {{ include "ehrbase.serverPort" . | quote }}
+  SERVER_PORT: {{ include "ehrbase.port" . | quote }}
   SERVER_SERVLET_CONTEXT_PATH: {{ .Values.contextPath | quote }}
+  {{- if .Values.tls.enabled }}
+  SERVER_SSL_ENABLED: "true"
+  SERVER_SSL_CERTIFICATE: "/app/ssl/certs/tls.crt"
+  SERVER_SSL_CERTIFICATEPRIVATEKEY: "/app/ssl/certs/tls.key"
+  {{- end }}
+  {{- if eq .Values.auth.type "none" -}}
+  SECURITY_AUTHTYPE: "none"
+  {{- else if eq .Values.auth.type "basic" }}
+  SECURITY_AUTHTYPE: "basic"
+  {{- else if eq .Values.auth.type "oauth2" }}
+  SECURITY_AUTHTYPE: "oauth"
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: {{ .Values.auth.oauth2.jwkSetUri }}
+  {{- end }}
+  SPRING_CACHE_TYPE: "redis"
+  SPRING_DATA_REDIS_HOST: {{ include "ehrbase.redis.host" . | quote }}
+  SPRING_DATA_REDIS_PORT: {{ include "ehrbase.redis.port" . | quote }}
