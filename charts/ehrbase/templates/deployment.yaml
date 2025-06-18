@@ -33,16 +33,14 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
-        {{- if .Values.postgresql.enabled }}
         - name: wait-for-postgres
           image: busybox:stable
-          command: [ 'sh', '-c', 'until nc -z $POSTGRES_HOST $POSTGRES_PORT; do echo waiting for database; sleep 2; done;' ]
+          command: [ 'sh', '-c', 'until nc -z $POSTGRES_HOST $POSTGRES_PORT; do echo "Waiting for PostgreSQL to be ready..."; sleep 2; done; echo "PostgreSQL is ready!"' ]
           env:
             - name: POSTGRES_HOST
               value: {{ include "ehrbase.postgres.host" .  | quote }}
             - name: POSTGRES_PORT
               value: {{ include "ehrbase.postgres.port" .  | quote }}
-        {{- end }}
       containers:
         - name: ehrbase
           {{- with .Values.securityContext }}
