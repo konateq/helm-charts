@@ -58,7 +58,7 @@ image:
   tag: ""
 
 # -- Image pull secrets for the deployment
-imagePullSecrets: [ ]
+imagePullSecrets: []
 # -- Override the name of the chart
 nameOverride: ""
 # -- Override the full name of the chart
@@ -117,7 +117,7 @@ ingress:
         - path: /
           pathType: ImplementationSpecific
   # -- TLS configuration for the ingress
-  tls: [ ]
+  tls: []
   #  - secretName: ehrbase-tls
   #    hosts:
   #      - ehrbase.local
