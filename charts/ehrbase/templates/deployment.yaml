@@ -59,7 +59,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ include "ehrbase.postgres.secretName" . }}
-                  key: {{ include "ehrbase.postgres.secretAdminPasswordKey" . }}
+                  key: {{ include "ehrbase.postgres.secretUserPasswordKey" . }}
             {{- if eq .Values.auth.type "basic" }}
             - name: SECURITY_AUTHADMINUSER
               valueFrom:
@@ -87,9 +87,16 @@ spec:
                 secretKeyRef:
                   name: {{ include "ehrbase.redis.secretName" . }}
                   key: {{ include "ehrbase.redis.secretPasswordKey" . }}
+            {{- with .Values.extraEnvVars }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ include "ehrbase.fullname" . }}-env-vars
+            {{- if .Values.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ .Values.extraEnvVarsSecret }}
+            {{- end }}
           ports:
             {{- if not .Values.tls.enabled }}
             - name: http

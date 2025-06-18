@@ -148,6 +148,11 @@ autoscaling:
   ## -- Target memory utilization percentage
   # targetMemory: 80
 
+# -- Additional environment variables
+extraEnvVars: []
+# -- Name of the existing Kubernetes Secret that contains additional environment variables
+extraEnvVarsSecret: ""
+
 # -- Additional volumes on the output Deployment definition.
 extraVolumes: []
 

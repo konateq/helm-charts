@@ -7,7 +7,7 @@ metadata:
 data:
   DB_URL: {{ include "ehrbase.postgres.url" . | quote }}
   DB_USER: {{ include "ehrbase.postgres.user" . | quote }}
-  DB_USER_ADMIN: {{ include "ehrbase.postgres.adminUser" . | quote }}
+  DB_USER_ADMIN: {{ include "ehrbase.postgres.user" . | quote }}
   MANAGEMENT_ENDPOINT_HEALTH_ENABLED: "true"
   MANAGEMENT_ENDPOINTS_WEB_ACCESS: "PUBLIC"
   MANAGEMENT_SERVER_PORT: {{ .Values.containerPorts.management | quote }}
@@ -26,6 +26,5 @@ data:
   SECURITY_AUTHTYPE: "oauth"
   SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: {{ .Values.auth.oauth2.jwkSetUri }}
   {{- end }}
-  SPRING_CACHE_TYPE: "redis"
   SPRING_DATA_REDIS_HOST: {{ include "ehrbase.redis.host" . | quote }}
   SPRING_DATA_REDIS_PORT: {{ include "ehrbase.redis.port" . | quote }}
