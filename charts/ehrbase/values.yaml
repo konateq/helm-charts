@@ -1,0 +1,249 @@
+auth:
+  # -- Type of authentication to use, either `basic`, `oauth2` or `none`
+  type: basic
+
+  basic:
+    # -- Username for the admin user
+    adminUsername: ehrbase-admin
+    # -- Password for the admin user
+    adminPassword: ""
+    # -- Username for the regular user
+    username: ehrbase-user
+    # -- Password for the regular user
+    password: ""
+    # -- Name of the existing Kubernetes Secret that contains the credentials
+    existingSecret: ""
+    # -- Key in the existing Kubernetes Secret that contains the admin username
+    existingSecretAdminUsernameKey: admin-username
+    # -- Key in the existing Kubernetes Secret that contains the admin password
+    existingSecretAdminPasswordKey: admin-password
+    # -- Key in the existing Kubernetes Secret that contains the regular username
+    existingSecretUsernameKey: username
+    # -- Key in the existing Kubernetes Secret that contains the regular password
+    existingSecretPasswordKey: password
+
+  oauth2:
+    # -- Authorization Server's JWK Set Endpoint
+    jwkSetUri: ""
+
+# -- Context path used by the application
+contextPath: /
+
+configuration: ""
+
+tls:
+  # -- Enable or disable TLS for internal communication
+  enabled: false
+  # -- Name of the existing Kubernetes Secret that contains the TLS certificate and key.
+  # Otherwise, a self-signed certificate will be generated
+  existingSecret: ""
+
+containerPorts:
+  # -- Port for HTTP traffic
+  http: 8080
+  # -- Port for HTTPS traffic
+  https: 8443
+  # -- Port for management traffic
+  management: 9000
+
+# -- Number of replicas for the deployment
+replicaCount: 1
+
+image:
+  # -- Image repository, defaults to the chart app version
+  repository: ehrbase/ehrbase
+  # -- Image pull policy, can be Always, IfNotPresent, or Never
+  pullPolicy: IfNotPresent
+  # -- Tag for the image, defaults to the chart app version
+  tag: ""
+
+# -- Image pull secrets for the deployment
+imagePullSecrets: []
+# -- Override the name of the chart
+nameOverride: ""
+# -- Override the full name of the chart
+fullnameOverride: ""
+
+serviceAccount:
+  # -- Create a service account for the deployment
+  create: true
+  # -- Automatically mount the service account token
+  automount: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- Name of the service account to use
+  name: ""
+
+# -- Annotations to add to the Pod
+podAnnotations: {}
+# -- Labels to add to the Pod
+podLabels: {}
+
+# -- Security context for the pod
+podSecurityContext: {}
+# fsGroup: 2000
+
+# -- Security context for the container
+securityContext: {}
+# capabilities:
+#   drop:
+#   - ALL
+# readOnlyRootFilesystem: true
+# runAsNonRoot: true
+# runAsUser: 1000
+
+service:
+  # -- Type of service to create, e.g., ClusterIP, NodePort, LoadBalancer
+  type: ClusterIP
+  ports:
+    # -- Port for HTTP traffic
+    http: 8080
+    # -- Port for HTTPS traffic
+    https: 8443
+    # -- Port for management traffic
+    management: 9000
+
+ingress:
+  # -- Enable or disable the ingress resource
+  enabled: false
+  # -- Ingress class name, e.g., "nginx", "traefik", etc.
+  className: ""
+  # -- Annotations for the ingress
+  annotations: {}
+  # -- Ingress hosts configuration
+  hosts:
+    - host: ehrbase.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  # -- TLS configuration for the ingress
+  tls: []
+  #  - secretName: ehrbase-tls
+  #    hosts:
+  #      - ehrbase.local
+
+# -- Resource requests and limits for the container
+resources: {}
+# limits:
+#   cpu: 100m
+#   memory: 128Mi
+# requests:
+#   cpu: 100m
+#   memory: 128Mi
+
+# -- Custom liveness probe
+customLivenessProbe: {}
+# -- Custom readiness probe
+customReadinessProbe: {}
+
+autoscaling:
+  ## -- Enable or disable the Horizontal Pod Autoscaler
+  enabled: false
+  ## -- Minimum number of replicas
+  minReplicas: 1
+  ## -- Maximum number of replicas
+  maxReplicas: 10
+  ## -- Target CPU utilization percentage
+  targetCPU: 80
+  ## -- Target memory utilization percentage
+  # targetMemory: 80
+
+# -- Additional environment variables
+extraEnvVars: []
+# -- Name of the existing Kubernetes Secret that contains additional environment variables
+extraEnvVarsSecret: ""
+
+# -- Additional volumes on the output Deployment definition.
+extraVolumes: []
+
+# -- Additional volume mounts on the output Deployment definition.
+extraVolumeMounts: []
+
+# -- Node selector for the deployment
+nodeSelector: {}
+
+# -- Tolerations for the deployment
+tolerations: []
+
+# -- Affinity settings for the deployment
+affinity: {}
+
+postgresql:
+  # -- Enable or disable the PostgreSQL chart
+  enabled: true
+
+  auth:
+    # -- Password for the PostgreSQL admin user
+    postgresPassword: ""
+    # -- Username for the PostgreSQL user
+    username: ehrbase
+    # -- Password for the PostgreSQL user
+    password: ""
+    # -- Database name for the PostgreSQL user
+    database: ehrbase
+    # -- Name of the existing Kubernetes Secret that contains the PostgreSQL password
+    existingSecret: ""
+
+  # -- Architecture of the PostgreSQL deployment, either `standalone` or `replication`
+  architecture: standalone
+
+  primary:
+    initdb:
+      scripts:
+        # This script will be executed to initialize the PostgreSQL database
+        # @ignore
+        00_init_db.sql: |
+          \set db_name `echo "$POSTGRES_DATABASE"`
+
+          CREATE SCHEMA IF NOT EXISTS ehr;
+          CREATE SCHEMA IF NOT EXISTS ext;
+
+          CREATE EXTENSION IF NOT EXISTS "uuid-ossp" SCHEMA ext;
+
+          ALTER DATABASE :db_name SET search_path TO ext;
+          ALTER DATABASE :db_name SET intervalstyle = 'iso_8601';
+
+          ALTER FUNCTION jsonb_path_query(jsonb, jsonpath, jsonb, boolean) ROWS 1;
+
+externalPostgresql:
+  host: ""
+  # -- Port number of the external PostgreSQL server
+  port: 5432
+  # -- Username for the external PostgreSQL server
+  username: ehrbase
+  # -- Password for the external PostgreSQL server
+  password: ""
+  # -- Database name for the external PostgreSQL server
+  database: ehrbase
+  # -- Name of the existing Kubernetes Secret that contains the PostgreSQL password
+  existingSecret: ""
+  # -- Key in the existing Kubernetes Secret that contains the PostgreSQL password
+  existingSecretPasswordKey: "password"
+
+redis:
+  # -- Enable or disable the Redis chart
+  enabled: true
+  # -- The Redis architecture to use, either `standalone` or `replication`
+  architecture: standalone
+
+  auth:
+    # -- Enable or disable Redis authentication
+    enabled: true
+    # -- Password for the Redis server
+    password: ""
+    # -- Name of the existing Kubernetes Secret that contains the Redis password
+    existingSecret: ""
+    # -- Key in the existing Kubernetes Secret that contains the Redis password
+    existingSecretPasswordKey: ""
+
+externalRedis:
+  # -- Hostname or IP address of the external Redis server
+  host: ""
+  # -- Port number of the external Redis server
+  port: 6379
+  # -- Password for the external Redis server
+  password: ""
+  # -- Name of the existing Kubernetes Secret that contains the Redis password
+  existingSecret: ""
+  # -- Key in the existing Kubernetes Secret that contains the Redis password
+  existingSecretPasswordKey: "redis-password"

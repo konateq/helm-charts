@@ -1,0 +1,181 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ehrbase.fullname" . }}
+  labels:
+    {{- include "ehrbase.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "ehrbase.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "ehrbase.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "ehrbase.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:stable
+          command: [ 'sh', '-c', 'until nc -z $POSTGRES_HOST $POSTGRES_PORT; do echo "Waiting for PostgreSQL to be ready..."; sleep 2; done; echo "PostgreSQL is ready!"' ]
+          env:
+            - name: POSTGRES_HOST
+              value: {{ include "ehrbase.postgres.host" .  | quote }}
+            - name: POSTGRES_PORT
+              value: {{ include "ehrbase.postgres.port" .  | quote }}
+      containers:
+        - name: ehrbase
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ehrbase.postgres.secretName" . }}
+                  key: {{ include "ehrbase.postgres.secretUserPasswordKey" . }}
+            - name: DB_PASS_ADMIN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ehrbase.postgres.secretName" . }}
+                  key: {{ include "ehrbase.postgres.secretUserPasswordKey" . }}
+            {{- if eq .Values.auth.type "basic" }}
+            - name: SECURITY_AUTHADMINUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ehrbase.auth.secretName" . }}
+                  key: {{ include "ehrbase.auth.secretAdminUsernameKey" . }}
+            - name: SECURITY_AUTHADMINPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ehrbase.auth.secretName" . }}
+                  key: {{ include "ehrbase.auth.secretAdminPasswordKey" . }}
+            - name: SECURITY_AUTHUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ehrbase.auth.secretName" . }}
+                  key: {{ include "ehrbase.auth.secretUsernameKey" . }}
+            - name: SECURITY_AUTHPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ehrbase.auth.secretName" . }}
+                  key: {{ include "ehrbase.auth.secretPasswordKey" . }}
+            {{- end }}
+            - name: SPRING_DATA_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ehrbase.redis.secretName" . }}
+                  key: {{ include "ehrbase.redis.secretPasswordKey" . }}
+            {{- with .Values.extraEnvVars }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "ehrbase.fullname" . }}-env-vars
+            {{- if .Values.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ .Values.extraEnvVarsSecret }}
+            {{- end }}
+          ports:
+            {{- if not .Values.tls.enabled }}
+            - name: http
+              containerPort: {{ .Values.containerPorts.http }}
+              protocol: TCP
+            {{- else }}
+            - name: https
+              containerPort: {{ .Values.containerPorts.https }}
+              protocol: TCP
+            {{- end }}
+            - name: management
+              containerPort: {{ .Values.containerPorts.management }}
+              protocol: TCP
+          {{- if .Values.customLivenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- else }}
+          livenessProbe:
+            httpGet:
+              path: /management/health/liveness
+              port: management
+              scheme: {{ ternary "HTTPS" "HTTP" .Values.tls.enabled }}
+          {{- end }}
+          {{- if .Values.customReadinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- else }}
+          readinessProbe:
+            httpGet:
+              path: /management/health/readiness
+              port: management
+              scheme: {{ ternary "HTTPS" "HTTP" .Values.tls.enabled }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: tmp-dir
+              mountPath: /tmp
+            {{- if .Values.configuration }}
+            - name: config
+              mountPath: /app/config/application.yml
+              subPath: application.yml
+              readOnly: true
+            {{- end }}
+            {{- if .Values.tls.enabled }}
+            - name: tls-certs
+              mountPath: /app/ssl/certs
+              readOnly: true
+            {{- end }}
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      volumes:
+        - name: tmp-dir
+          emptyDir: { }
+        {{- if .Values.configuration }}
+        - name: config
+          configMap:
+            name: {{ include "ehrbase.fullname" . }}-configuration
+        {{- end }}
+        {{- if .Values.tls.enabled }}
+        - name: tls-certs
+          secret:
+            secretName: {{ include "ehrbase.tls.secretName" . }}
+        {{- end }}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
