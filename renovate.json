@@ -1,6 +1,28 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "github>konateq/renovate"
+    "github>konateq/renovate",
+    "customManagers:helmChartYamlAppVersions"
+  ],
+  "packageRules": [
+    {
+      "matchFileNames": [
+        "charts/**"
+      ],
+      "bumpVersions": [
+        {
+          "filePatterns": [
+            "{{packageFileDir}}/Chart.yaml"
+          ],
+          "matchStrings": [
+            "version:\\s(?<version>[^\\s]+)"
+          ],
+          "bumpType": "{{#if isPatch}}patch{{else}}minor{{/if}}"
+        }
+      ],
+      "addLabels": [
+        "{{parentDir}}"
+      ]
+    }
   ]
 }
