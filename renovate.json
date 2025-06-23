@@ -6,6 +6,12 @@
   ],
   "packageRules": [
     {
+      "matchManagers": [
+        "helmv3"
+      ],
+      "groupName": "Helm Chart Dependencies"
+    },
+    {
       "matchFileNames": [
         "charts/**"
       ],
