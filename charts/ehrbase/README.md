@@ -1,6 +1,6 @@
 # EHRbase Helm Chart
 
-![Version: 2.0.0](https://img.shields.io/badge/Version-2.0.0-informational?style=flat-square)
+![Version: 2.0.1](https://img.shields.io/badge/Version-2.0.1-informational?style=flat-square)
 ![AppVersion: 2.17.0](https://img.shields.io/badge/AppVersion-2.17.0-informational?style=flat-square)
 ![GitHub License](https://img.shields.io/github/license/konateq/helm-charts)
 
@@ -287,85 +287,87 @@ options.
 The following table lists all configurable parameters for the EHRbase chart, along with their default values and
 descriptions.
 
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| affinity | object | `{}` | Affinity settings for the deployment |
-| auth.basic.adminPassword | string | `""` | Password for the admin user |
-| auth.basic.adminUsername | string | `"ehrbase-admin"` | Username for the admin user |
-| auth.basic.existingSecret | string | `""` | Name of the existing Kubernetes Secret that contains the credentials |
-| auth.basic.existingSecretAdminPasswordKey | string | `"admin-password"` | Key in the existing Kubernetes Secret that contains the admin password |
-| auth.basic.existingSecretAdminUsernameKey | string | `"admin-username"` | Key in the existing Kubernetes Secret that contains the admin username |
-| auth.basic.existingSecretPasswordKey | string | `"password"` | Key in the existing Kubernetes Secret that contains the regular password |
-| auth.basic.existingSecretUsernameKey | string | `"username"` | Key in the existing Kubernetes Secret that contains the regular username |
-| auth.basic.password | string | `""` | Password for the regular user |
-| auth.basic.username | string | `"ehrbase-user"` | Username for the regular user |
-| auth.oauth2.jwkSetUri | string | `""` | Authorization Server's JWK Set Endpoint |
-| auth.type | string | `"basic"` | Type of authentication to use, either `basic`, `oauth2` or `none` |
-| autoscaling.enabled | bool | `false` |  |
-| autoscaling.maxReplicas | int | `10` |  |
-| autoscaling.minReplicas | int | `1` |  |
-| autoscaling.targetCPU | int | `80` |  |
-| configuration | string | `""` |  |
-| containerPorts.http | int | `8080` | Port for HTTP traffic |
-| containerPorts.https | int | `8443` | Port for HTTPS traffic |
-| containerPorts.management | int | `9000` | Port for management traffic |
-| contextPath | string | `"/"` | Context path used by the application |
-| customLivenessProbe | object | `{}` | Custom liveness probe |
-| customReadinessProbe | object | `{}` | Custom readiness probe |
-| externalPostgresql.database | string | `"ehrbase"` | Database name for the external PostgreSQL server |
-| externalPostgresql.existingSecret | string | `""` | Name of the existing Kubernetes Secret that contains the PostgreSQL password |
-| externalPostgresql.existingSecretPasswordKey | string | `"password"` | Key in the existing Kubernetes Secret that contains the PostgreSQL password |
-| externalPostgresql.host | string | `""` |  |
-| externalPostgresql.password | string | `""` | Password for the external PostgreSQL server |
-| externalPostgresql.port | int | `5432` | Port number of the external PostgreSQL server |
-| externalPostgresql.username | string | `"ehrbase"` | Username for the external PostgreSQL server |
-| externalRedis.existingSecret | string | `""` | Name of the existing Kubernetes Secret that contains the Redis password |
-| externalRedis.existingSecretPasswordKey | string | `"redis-password"` | Key in the existing Kubernetes Secret that contains the Redis password |
-| externalRedis.host | string | `""` | Hostname or IP address of the external Redis server |
-| externalRedis.password | string | `""` | Password for the external Redis server |
-| externalRedis.port | int | `6379` | Port number of the external Redis server |
-| extraVolumeMounts | list | `[]` | Additional volume mounts on the output Deployment definition. |
-| extraVolumes | list | `[]` | Additional volumes on the output Deployment definition. |
-| fullnameOverride | string | `""` | Override the full name of the chart |
-| image.pullPolicy | string | `"IfNotPresent"` | Image pull policy, can be Always, IfNotPresent, or Never |
-| image.repository | string | `"ehrbase/ehrbase"` | Image repository, defaults to the chart app version |
-| image.tag | string | `""` | Tag for the image, defaults to the chart app version |
-| imagePullSecrets | list | `[]` | Image pull secrets for the deployment |
-| ingress.annotations | object | `{}` | Annotations for the ingress |
-| ingress.className | string | `""` | Ingress class name, e.g., "nginx", "traefik", etc. |
-| ingress.enabled | bool | `false` | Enable or disable the ingress resource |
-| ingress.hosts | list | `[{"host":"ehrbase.local","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}]` | Ingress hosts configuration |
-| ingress.tls | list | `[]` | TLS configuration for the ingress |
-| nameOverride | string | `""` | Override the name of the chart |
-| nodeSelector | object | `{}` | Node selector for the deployment |
-| podAnnotations | object | `{}` | Annotations to add to the Pod |
-| podLabels | object | `{}` | Labels to add to the Pod |
-| podSecurityContext | object | `{}` | Security context for the pod |
-| postgresql.architecture | string | `"standalone"` | Architecture of the PostgreSQL deployment, either `standalone` or `replication` |
-| postgresql.auth.database | string | `"ehrbase"` | Database name for the PostgreSQL user |
-| postgresql.auth.existingSecret | string | `""` | Name of the existing Kubernetes Secret that contains the PostgreSQL password |
-| postgresql.auth.password | string | `""` | Password for the PostgreSQL user |
-| postgresql.auth.postgresPassword | string | `""` | Password for the PostgreSQL admin user |
-| postgresql.auth.username | string | `"ehrbase"` | Username for the PostgreSQL user |
-| postgresql.enabled | bool | `true` | Enable or disable the PostgreSQL chart |
-| postgresql.primary.initdb.scripts | object | `{}` |  |
-| redis.architecture | string | `"standalone"` | The Redis architecture to use, either `standalone` or `replication` |
-| redis.auth.enabled | bool | `true` | Enable or disable Redis authentication |
-| redis.auth.existingSecret | string | `""` | Name of the existing Kubernetes Secret that contains the Redis password |
-| redis.auth.existingSecretPasswordKey | string | `""` | Key in the existing Kubernetes Secret that contains the Redis password |
-| redis.auth.password | string | `""` | Password for the Redis server |
-| redis.enabled | bool | `true` | Enable or disable the Redis chart |
-| replicaCount | int | `1` | Number of replicas for the deployment |
-| resources | object | `{}` | Resource requests and limits for the container |
-| securityContext | object | `{}` | Security context for the container |
-| service.ports.http | int | `8080` | Port for HTTP traffic |
-| service.ports.https | int | `8443` | Port for HTTPS traffic |
-| service.ports.management | int | `9000` | Port for management traffic |
-| service.type | string | `"ClusterIP"` | Type of service to create, e.g., ClusterIP, NodePort, LoadBalancer |
-| serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
-| serviceAccount.automount | bool | `true` | Automatically mount the service account token |
-| serviceAccount.create | bool | `true` | Create a service account for the deployment |
-| serviceAccount.name | string | `""` | Name of the service account to use |
-| tls.enabled | bool | `false` | Enable or disable TLS for internal communication |
-| tls.existingSecret | string | `""` | Name of the existing Kubernetes Secret that contains the TLS certificate and key. Otherwise, a self-signed certificate will be generated |
-| tolerations | list | `[]` | Tolerations for the deployment |
+| Key                                          | Type   | Default                                                                                 | Description                                                                                                                              |
+|----------------------------------------------|--------|-----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| affinity                                     | object | `{}`                                                                                    | Affinity settings for the deployment                                                                                                     |
+| auth.basic.adminPassword                     | string | `""`                                                                                    | Password for the admin user                                                                                                              |
+| auth.basic.adminUsername                     | string | `"ehrbase-admin"`                                                                       | Username for the admin user                                                                                                              |
+| auth.basic.existingSecret                    | string | `""`                                                                                    | Name of the existing Kubernetes Secret that contains the credentials                                                                     |
+| auth.basic.existingSecretAdminPasswordKey    | string | `"admin-password"`                                                                      | Key in the existing Kubernetes Secret that contains the admin password                                                                   |
+| auth.basic.existingSecretAdminUsernameKey    | string | `"admin-username"`                                                                      | Key in the existing Kubernetes Secret that contains the admin username                                                                   |
+| auth.basic.existingSecretPasswordKey         | string | `"password"`                                                                            | Key in the existing Kubernetes Secret that contains the regular password                                                                 |
+| auth.basic.existingSecretUsernameKey         | string | `"username"`                                                                            | Key in the existing Kubernetes Secret that contains the regular username                                                                 |
+| auth.basic.password                          | string | `""`                                                                                    | Password for the regular user                                                                                                            |
+| auth.basic.username                          | string | `"ehrbase-user"`                                                                        | Username for the regular user                                                                                                            |
+| auth.oauth2.jwkSetUri                        | string | `""`                                                                                    | Authorization Server's JWK Set Endpoint                                                                                                  |
+| auth.type                                    | string | `"basic"`                                                                               | Type of authentication to use, either `basic`, `oauth2` or `none`                                                                        |
+| autoscaling.enabled                          | bool   | `false`                                                                                 |                                                                                                                                          |
+| autoscaling.maxReplicas                      | int    | `10`                                                                                    |                                                                                                                                          |
+| autoscaling.minReplicas                      | int    | `1`                                                                                     |                                                                                                                                          |
+| autoscaling.targetCPU                        | int    | `80`                                                                                    |                                                                                                                                          |
+| configuration                                | string | `""`                                                                                    |                                                                                                                                          |
+| containerPorts.http                          | int    | `8080`                                                                                  | Port for HTTP traffic                                                                                                                    |
+| containerPorts.https                         | int    | `8443`                                                                                  | Port for HTTPS traffic                                                                                                                   |
+| containerPorts.management                    | int    | `9000`                                                                                  | Port for management traffic                                                                                                              |
+| contextPath                                  | string | `"/"`                                                                                   | Context path used by the application                                                                                                     |
+| customLivenessProbe                          | object | `{}`                                                                                    | Custom liveness probe                                                                                                                    |
+| customReadinessProbe                         | object | `{}`                                                                                    | Custom readiness probe                                                                                                                   |
+| externalPostgresql.database                  | string | `"ehrbase"`                                                                             | Database name for the external PostgreSQL server                                                                                         |
+| externalPostgresql.existingSecret            | string | `""`                                                                                    | Name of the existing Kubernetes Secret that contains the PostgreSQL password                                                             |
+| externalPostgresql.existingSecretPasswordKey | string | `"password"`                                                                            | Key in the existing Kubernetes Secret that contains the PostgreSQL password                                                              |
+| externalPostgresql.host                      | string | `""`                                                                                    |                                                                                                                                          |
+| externalPostgresql.password                  | string | `""`                                                                                    | Password for the external PostgreSQL server                                                                                              |
+| externalPostgresql.port                      | int    | `5432`                                                                                  | Port number of the external PostgreSQL server                                                                                            |
+| externalPostgresql.username                  | string | `"ehrbase"`                                                                             | Username for the external PostgreSQL server                                                                                              |
+| externalRedis.existingSecret                 | string | `""`                                                                                    | Name of the existing Kubernetes Secret that contains the Redis password                                                                  |
+| externalRedis.existingSecretPasswordKey      | string | `"redis-password"`                                                                      | Key in the existing Kubernetes Secret that contains the Redis password                                                                   |
+| externalRedis.host                           | string | `""`                                                                                    | Hostname or IP address of the external Redis server                                                                                      |
+| externalRedis.password                       | string | `""`                                                                                    | Password for the external Redis server                                                                                                   |
+| externalRedis.port                           | int    | `6379`                                                                                  | Port number of the external Redis server                                                                                                 |
+| extraEnvVars                                 | list   | `[]`                                                                                    | Additional environment variables                                                                                                         |
+| extraEnvVarsSecret                           | string | `""`                                                                                    | Name of the existing Kubernetes Secret that contains additional environment variables                                                    |
+| extraVolumeMounts                            | list   | `[]`                                                                                    | Additional volume mounts on the output Deployment definition.                                                                            |
+| extraVolumes                                 | list   | `[]`                                                                                    | Additional volumes on the output Deployment definition.                                                                                  |
+| fullnameOverride                             | string | `""`                                                                                    | Override the full name of the chart                                                                                                      |
+| image.pullPolicy                             | string | `"IfNotPresent"`                                                                        | Image pull policy, can be Always, IfNotPresent, or Never                                                                                 |
+| image.repository                             | string | `"ehrbase/ehrbase"`                                                                     | Image repository, defaults to the chart app version                                                                                      |
+| image.tag                                    | string | `""`                                                                                    | Tag for the image, defaults to the chart app version                                                                                     |
+| imagePullSecrets                             | list   | `[]`                                                                                    | Image pull secrets for the deployment                                                                                                    |
+| ingress.annotations                          | object | `{}`                                                                                    | Annotations for the ingress                                                                                                              |
+| ingress.className                            | string | `""`                                                                                    | Ingress class name, e.g., "nginx", "traefik", etc.                                                                                       |
+| ingress.enabled                              | bool   | `false`                                                                                 | Enable or disable the ingress resource                                                                                                   |
+| ingress.hosts                                | list   | `[{"host":"ehrbase.local","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}]` | Ingress hosts configuration                                                                                                              |
+| ingress.tls                                  | list   | `[]`                                                                                    | TLS configuration for the ingress                                                                                                        |
+| nameOverride                                 | string | `""`                                                                                    | Override the name of the chart                                                                                                           |
+| nodeSelector                                 | object | `{}`                                                                                    | Node selector for the deployment                                                                                                         |
+| podAnnotations                               | object | `{}`                                                                                    | Annotations to add to the Pod                                                                                                            |
+| podLabels                                    | object | `{}`                                                                                    | Labels to add to the Pod                                                                                                                 |
+| podSecurityContext                           | object | `{}`                                                                                    | Security context for the pod                                                                                                             |
+| postgresql.architecture                      | string | `"standalone"`                                                                          | Architecture of the PostgreSQL deployment, either `standalone` or `replication`                                                          |
+| postgresql.auth.database                     | string | `"ehrbase"`                                                                             | Database name for the PostgreSQL user                                                                                                    |
+| postgresql.auth.existingSecret               | string | `""`                                                                                    | Name of the existing Kubernetes Secret that contains the PostgreSQL password                                                             |
+| postgresql.auth.password                     | string | `""`                                                                                    | Password for the PostgreSQL user                                                                                                         |
+| postgresql.auth.postgresPassword             | string | `""`                                                                                    | Password for the PostgreSQL admin user                                                                                                   |
+| postgresql.auth.username                     | string | `"ehrbase"`                                                                             | Username for the PostgreSQL user                                                                                                         |
+| postgresql.enabled                           | bool   | `true`                                                                                  | Enable or disable the PostgreSQL chart                                                                                                   |
+| postgresql.primary.initdb.scripts            | object | `{}`                                                                                    |                                                                                                                                          |
+| redis.architecture                           | string | `"standalone"`                                                                          | The Redis architecture to use, either `standalone` or `replication`                                                                      |
+| redis.auth.enabled                           | bool   | `true`                                                                                  | Enable or disable Redis authentication                                                                                                   |
+| redis.auth.existingSecret                    | string | `""`                                                                                    | Name of the existing Kubernetes Secret that contains the Redis password                                                                  |
+| redis.auth.existingSecretPasswordKey         | string | `""`                                                                                    | Key in the existing Kubernetes Secret that contains the Redis password                                                                   |
+| redis.auth.password                          | string | `""`                                                                                    | Password for the Redis server                                                                                                            |
+| redis.enabled                                | bool   | `true`                                                                                  | Enable or disable the Redis chart                                                                                                        |
+| replicaCount                                 | int    | `1`                                                                                     | Number of replicas for the deployment                                                                                                    |
+| resources                                    | object | `{}`                                                                                    | Resource requests and limits for the container                                                                                           |
+| securityContext                              | object | `{}`                                                                                    | Security context for the container                                                                                                       |
+| service.ports.http                           | int    | `8080`                                                                                  | Port for HTTP traffic                                                                                                                    |
+| service.ports.https                          | int    | `8443`                                                                                  | Port for HTTPS traffic                                                                                                                   |
+| service.ports.management                     | int    | `9000`                                                                                  | Port for management traffic                                                                                                              |
+| service.type                                 | string | `"ClusterIP"`                                                                           | Type of service to create, e.g., ClusterIP, NodePort, LoadBalancer                                                                       |
+| serviceAccount.annotations                   | object | `{}`                                                                                    | Annotations to add to the service account                                                                                                |
+| serviceAccount.automount                     | bool   | `true`                                                                                  | Automatically mount the service account token                                                                                            |
+| serviceAccount.create                        | bool   | `true`                                                                                  | Create a service account for the deployment                                                                                              |
+| serviceAccount.name                          | string | `""`                                                                                    | Name of the service account to use                                                                                                       |
+| tls.enabled                                  | bool   | `false`                                                                                 | Enable or disable TLS for internal communication                                                                                         |
+| tls.existingSecret                           | string | `""`                                                                                    | Name of the existing Kubernetes Secret that contains the TLS certificate and key. Otherwise, a self-signed certificate will be generated |
+| tolerations                                  | list   | `[]`                                                                                    | Tolerations for the deployment                                                                                                           |
