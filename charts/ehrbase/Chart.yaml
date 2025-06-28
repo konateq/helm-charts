@@ -1,6 +1,6 @@
 apiVersion: v2
 name: ehrbase
-version: 2.0.1
+version: 2.0.2
 kubeVersion: ">=1.31"
 description: EHRBase is an open-source, standards-based EHR server that provides a comprehensive platform for managing electronic health records.
 keywords:
@@ -12,11 +12,11 @@ sources:
   - https://github.com/konateq/helm-charts/tree/ehrbase/charts/ehrbase
 dependencies:
   - name: postgresql
-    version: 16.7.13
+    version: 16.7.14
     repository: oci://registry-1.docker.io/bitnamicharts
     condition: postgresql.enabled
   - name: redis
-    version: 21.2.5
+    version: 21.2.6
     repository: oci://registry-1.docker.io/bitnamicharts
     condition: redis.enabled
 maintainers:
