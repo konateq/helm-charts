@@ -1,6 +1,6 @@
 apiVersion: v2
 name: ehrbase
-version: 2.2.1
+version: 2.3.0
 kubeVersion: ">=1.31"
 description: EHRBase is an open-source, standards-based EHR server that provides a comprehensive platform for managing electronic health records.
 keywords:
@@ -23,4 +23,4 @@ maintainers:
   - name: Konateq
     url: https://konateq.com
 # renovate: image=ehrbase/ehrbase
-appVersion: "2.19.0"
+appVersion: "2.20.0"
