@@ -74,7 +74,9 @@ auth:
     jwkSetUri: https://keycloak.example.com/realms/ehrbase/protocol/openid-connect/certs
 ```
 
-### PostgreSQL Database
+### Database
+
+#### Embedded PostgreSQL
 
 > [!NOTE]
 > By default, the chart automatically deploys a PostgreSQL database using
@@ -110,7 +112,7 @@ data:
   password: <base64-postgresql-password>
 ```
 
-### External PostgreSQL Database
+#### External PostgreSQL
 
 You can also use an existing database by disabling the default database deployment and providing the connection details:
 
@@ -224,7 +226,7 @@ data:
 > We highly recommend using [cert-manager](https://cert-manager.io/docs/) to issue and manage TLS certificates within
 > your Kubernetes cluster.
 
-## High Availability
+### High Availability
 
 To achieve high availability, you can increase the number of replicas for the EHRbase deployment.
 
@@ -244,12 +246,41 @@ autoscaling:
 #  targetMemory: 80
 ```
 
-### External Redis
+#### Embedded Redis
 
 > [!NOTE]
 > To ensure that EHRbase can scale horizontally, the chart automatically deploys a Redis instance using
 > the [Bitnami Redis chart](https://github.com/bitnami/charts/tree/main/bitnami/redis). Please refer to the
 > documentation if you want to customize the Redis deployment.
+
+```yaml
+redis:
+  auth:
+    password: MyRedisPassword
+```
+
+The Bitnami Redis chart also supports using an existing secret to store the Redis password. In that case, you can
+specify the name of the secret using the `existingSecret` parameter:
+
+```yaml
+redis:
+  auth:
+    existingSecret: ehrbase-redis
+```
+
+With the following secret structure:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ehrbase-redis
+type: Opaque
+data:
+  redis-password: <base64-redis-password>
+```
+
+#### External Redis
 
 You can also use an existing Redis instance by disabling the default Redis deployment and providing the connection
 details:
