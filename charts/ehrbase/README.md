@@ -192,7 +192,7 @@ metadata:
 type: kubernetes.io/tls
 data:
   tls.crt: <base64-encoded-certificate>
-  tls.key: <base64-encoded-private-key>``
+  tls.key: <base64-encoded-private-key>
 ```
 
 ### Transport Layer Security
