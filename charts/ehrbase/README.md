@@ -40,7 +40,8 @@ Alternatively, you can use a Kubernetes secret to store the user credentials:
 ```yaml
 auth:
   type: basic
-  existingSecret: ehrbase-users
+  basic:
+    existingSecret: ehrbase-users
 ```
 
 The secret should look like this:
@@ -73,12 +74,43 @@ auth:
     jwkSetUri: https://keycloak.example.com/realms/ehrbase/protocol/openid-connect/certs
 ```
 
-### External PostgreSQL Database
+### PostgreSQL Database
 
 > [!NOTE]
 > By default, the chart automatically deploys a PostgreSQL database using
 > the [Bitnami PostgreSQL chart](https://github.com/bitnami/charts/tree/main/bitnami/postgresql). Please refer to the
 > documentation to learn more about the available configuration options.
+
+```yaml
+postgresql:
+  auth:
+    postgresPassword: MyAdminPassword
+    password: MyPostgresPassword
+```
+
+The Bitnami PostgreSQL chart also supports using an existing secret to store the PostgreSQL passwords. In that case,
+you can specify the name of the secret using the `existingSecret` parameter:
+
+```yaml
+postgresql:
+  auth:
+    existingSecret: ehrbase-postgres
+```
+
+With the following secret structure:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ehrbase-postgres
+type: Opaque
+data:
+  postgres-password: <base64-postgresql-admin-password>
+  password: <base64-postgresql-password>
+```
+
+### External PostgreSQL Database
 
 You can also use an existing database by disabling the default database deployment and providing the connection details:
 
