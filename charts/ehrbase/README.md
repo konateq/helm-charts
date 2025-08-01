@@ -201,7 +201,7 @@ To enable TLS for internal communication, you can set the `tls.enabled` paramete
 Kubernetes secret with the TLS certificate and key, specify it using `tls.existingSecret`. Otherwise, a self-signed
 certificate will be generated.
 
-  ```yaml
+```yaml
 tls:
   enabled: true
   existingSecret: ehrbase-internal-tls
