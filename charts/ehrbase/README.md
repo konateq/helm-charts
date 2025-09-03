@@ -1,7 +1,7 @@
 # EHRbase Helm Chart
 
-![Version: 2.4.6](https://img.shields.io/badge/Version-2.4.6-informational?style=flat-square) 
-![AppVersion: 2.20.0](https://img.shields.io/badge/AppVersion-2.20.0-informational?style=flat-square) 
+![Version: 2.5.0](https://img.shields.io/badge/Version-2.5.0-informational?style=flat-square) 
+![AppVersion: 2.22.0](https://img.shields.io/badge/AppVersion-2.22.0-informational?style=flat-square) 
 ![GitHub License](https://img.shields.io/github/license/konateq/helm-charts)
 
 [EHRbase](https://ehrbase.org) is an open source software backend for clinical application systems and electronic health
