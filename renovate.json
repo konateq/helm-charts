@@ -13,6 +13,13 @@
     },
     {
       "matchFileNames": [
+        "**/Chart.yaml",
+        "**/values.yaml"
+      ],
+      "pinDigests": false
+    },
+    {
+      "matchFileNames": [
         "charts/**"
       ],
       "bumpVersions": [
