@@ -23,8 +23,8 @@ auth:
     existingSecretPasswordKey: password
 
   oauth2:
-    # -- Authorization Server's JWK Set Endpoint
-    jwkSetUri: ""
+    # -- Authorization Server's Issuer URI
+    issuerUri: ""
 
 # -- Context path used by the application
 contextPath: /

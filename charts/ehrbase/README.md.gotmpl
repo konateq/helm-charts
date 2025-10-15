@@ -65,13 +65,13 @@ data:
 
 #### OAuth2
 
-To configure EHRbase to use OAuth2 for authentication, you need to specify the JWK Set URI of your authorization server:
+To configure EHRbase to use OAuth2 for authentication, you need to specify the issuer URI of your authorization server:
 
 ```yaml
 auth:
   type: oauth2
   oauth2:
-    jwkSetUri: https://keycloak.example.com/realms/ehrbase/protocol/openid-connect/certs
+    issuerUri: https://keycloak.example.com/realms/ehrbase
 ```
 
 ### Database
