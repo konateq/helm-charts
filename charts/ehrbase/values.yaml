@@ -172,6 +172,9 @@ postgresql:
   # -- Enable or disable the PostgreSQL chart
   enabled: true
 
+  image:
+    repository: bitnamilegacy/postgresql
+
   auth:
     # -- Password for the PostgreSQL admin user
     postgresPassword: ""
@@ -223,6 +226,10 @@ externalPostgresql:
 redis:
   # -- Enable or disable the Redis chart
   enabled: true
+
+  image:
+    repository: bitnamilegacy/redis
+
   # -- The Redis architecture to use, either `standalone` or `replication`
   architecture: standalone
 

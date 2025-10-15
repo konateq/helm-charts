@@ -1,7 +1,7 @@
 # EHRbase Helm Chart
 
-![Version: 2.5.0](https://img.shields.io/badge/Version-2.5.0-informational?style=flat-square) 
-![AppVersion: 2.22.0](https://img.shields.io/badge/AppVersion-2.22.0-informational?style=flat-square) 
+![Version: 2.6.0](https://img.shields.io/badge/Version-2.6.0-informational?style=flat-square)
+![AppVersion: 2.24.0](https://img.shields.io/badge/AppVersion-2.24.0-informational?style=flat-square)
 ![GitHub License](https://img.shields.io/github/license/konateq/helm-charts)
 
 [EHRbase](https://ehrbase.org) is an open source software backend for clinical application systems and electronic health
@@ -413,6 +413,7 @@ descriptions.
 | postgresql.auth.postgresPassword             | string | `""`                                                                                    | Password for the PostgreSQL admin user                                                                                                   |
 | postgresql.auth.username                     | string | `"ehrbase"`                                                                             | Username for the PostgreSQL user                                                                                                         |
 | postgresql.enabled                           | bool   | `true`                                                                                  | Enable or disable the PostgreSQL chart                                                                                                   |
+| postgresql.image.repository                  | string | `"bitnamilegacy/postgresql"`                                                            |                                                                                                                                          |
 | postgresql.primary.initdb.scripts            | object | `{}`                                                                                    |                                                                                                                                          |
 | redis.architecture                           | string | `"standalone"`                                                                          | The Redis architecture to use, either `standalone` or `replication`                                                                      |
 | redis.auth.enabled                           | bool   | `true`                                                                                  | Enable or disable Redis authentication                                                                                                   |
@@ -420,6 +421,7 @@ descriptions.
 | redis.auth.existingSecretPasswordKey         | string | `""`                                                                                    | Key in the existing Kubernetes Secret that contains the Redis password                                                                   |
 | redis.auth.password                          | string | `""`                                                                                    | Password for the Redis server                                                                                                            |
 | redis.enabled                                | bool   | `true`                                                                                  | Enable or disable the Redis chart                                                                                                        |
+| redis.image.repository                       | string | `"bitnamilegacy/redis"`                                                                 |                                                                                                                                          |
 | replicaCount                                 | int    | `1`                                                                                     | Number of replicas for the deployment                                                                                                    |
 | resources                                    | object | `{}`                                                                                    | Resource requests and limits for the container                                                                                           |
 | securityContext                              | object | `{}`                                                                                    | Security context for the container                                                                                                       |
