@@ -1,6 +1,6 @@
 # EHRbase Helm Chart
 
-![Version: 2.6.0](https://img.shields.io/badge/Version-2.6.0-informational?style=flat-square)
+![Version: 2.6.1](https://img.shields.io/badge/Version-2.6.1-informational?style=flat-square)
 ![AppVersion: 2.24.0](https://img.shields.io/badge/AppVersion-2.24.0-informational?style=flat-square)
 ![GitHub License](https://img.shields.io/github/license/konateq/helm-charts)
 
@@ -65,13 +65,13 @@ data:
 
 #### OAuth2
 
-To configure EHRbase to use OAuth2 for authentication, you need to specify the JWK Set URI of your authorization server:
+To configure EHRbase to use OAuth2 for authentication, you need to specify the issuer URI of your authorization server:
 
 ```yaml
 auth:
   type: oauth2
   oauth2:
-    jwkSetUri: https://keycloak.example.com/realms/ehrbase/protocol/openid-connect/certs
+    issuerUri: https://keycloak.example.com/realms/ehrbase
 ```
 
 ### Database
@@ -362,7 +362,7 @@ descriptions.
 | auth.basic.existingSecretUsernameKey         | string | `"username"`                                                                            | Key in the existing Kubernetes Secret that contains the regular username                                                                 |
 | auth.basic.password                          | string | `""`                                                                                    | Password for the regular user                                                                                                            |
 | auth.basic.username                          | string | `"ehrbase-user"`                                                                        | Username for the regular user                                                                                                            |
-| auth.oauth2.jwkSetUri                        | string | `""`                                                                                    | Authorization Server's JWK Set Endpoint                                                                                                  |
+| auth.oauth2.issuerUri                        | string | `""`                                                                                    | Authorization Server's Issuer URI                                                                                                        |
 | auth.type                                    | string | `"basic"`                                                                               | Type of authentication to use, either `basic`, `oauth2` or `none`                                                                        |
 | autoscaling.enabled                          | bool   | `false`                                                                                 |                                                                                                                                          |
 | autoscaling.maxReplicas                      | int    | `10`                                                                                    |                                                                                                                                          |

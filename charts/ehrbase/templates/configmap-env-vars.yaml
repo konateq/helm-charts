@@ -24,7 +24,7 @@ data:
   SECURITY_AUTHTYPE: "basic"
   {{- else if eq .Values.auth.type "oauth2" }}
   SECURITY_AUTHTYPE: "oauth"
-  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: {{ .Values.auth.oauth2.jwkSetUri }}
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: {{ .Values.auth.oauth2.issuerUri | quote }}
   {{- end }}
   SPRING_DATA_REDIS_HOST: {{ include "ehrbase.redis.host" . | quote }}
   SPRING_DATA_REDIS_PORT: {{ include "ehrbase.redis.port" . | quote }}
