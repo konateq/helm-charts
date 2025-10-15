@@ -123,6 +123,7 @@ spec:
               path: /management/health/liveness
               port: management
               scheme: {{ ternary "HTTPS" "HTTP" .Values.tls.enabled }}
+            initialDelaySeconds: 60
           {{- end }}
           {{- if .Values.customReadinessProbe }}
           readinessProbe:
@@ -133,6 +134,7 @@ spec:
               path: /management/health/readiness
               port: management
               scheme: {{ ternary "HTTPS" "HTTP" .Values.tls.enabled }}
+            initialDelaySeconds: 60
           {{- end }}
           {{- with .Values.resources }}
           resources:
